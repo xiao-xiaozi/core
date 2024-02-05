@@ -69,10 +69,15 @@ const isComment = (node: Node): node is Comment =>
   node.nodeType === DOMNodeTypes.COMMENT
 
 // Note: hydration is DOM-specific
+// 注意：hydration 是 DOM 特定的
 // But we have to place it in core due to tight coupling with core - splitting
+// 但由于与核心分裂的紧密耦合，我们必须将其放置在核心中
 // it out creates a ton of unnecessary complexity.
+// 它会造成大量不必要的复杂性。
 // Hydration also depends on some renderer internal logic which needs to be
+// Hydration 还取决于一些渲染器内部逻辑，需要
 // passed in via arguments.
+// 通过参数传入。
 export function createHydrationFunctions(
   rendererInternals: RendererInternals<Node, Element>,
 ) {
@@ -160,7 +165,9 @@ export function createHydrationFunctions(
       case Text:
         if (domType !== DOMNodeTypes.TEXT) {
           // #5728 empty text node inside a slot can cause hydration failure
+          // #5728 插槽内的空文本节点可能会导致 hydration 失败
           // because the server rendered HTML won't contain a text node
+          // 因为服务器渲染的 HTML 不包含文本节点
           if (vnode.children === '') {
             insert((vnode.el = createText('')), parentNode(node)!, node)
             nextNode = node
@@ -360,11 +367,15 @@ export function createHydrationFunctions(
     optimized = optimized || !!vnode.dynamicChildren
     const { type, props, patchFlag, shapeFlag, dirs, transition } = vnode
     // #4006 for form elements with non-string v-model value bindings
+    // #4006 用于具有非字符串 v-model 值绑定的表单元素
     // e.g. <option :value="obj">, <input type="checkbox" :true-value="1">
+    // 例如 <选项：value =“obj”>，<输入类型=“复选框”：true-value =“1”>
     // #7476 <input indeterminate>
     const forcePatch = type === 'input' || type === 'option'
     // skip props & children if this is hoisted static nodes
+    // 如果这是提升的静态节点，则跳过props和子节点
     // #5405 in dev, always hydrate children for HMR
+    // #5405 在开发中，始终为 HMR 的子节点hydrate
     if (__DEV__ || forcePatch || patchFlag !== PatchFlags.HOISTED) {
       if (dirs) {
         invokeDirectiveHook(vnode, null, parentComponent, 'created')
@@ -417,12 +428,14 @@ export function createHydrationFunctions(
               `Hydration children mismatch on`,
               el,
               `\nServer rendered element contains more child nodes than client vdom.`,
+              // 服务器渲染的元素包含比客户端 vdom 更多的子节点
             )
             hasWarned = true
           }
           // The SSRed DOM contains more nodes than it should. Remove them.
+          // SSRed DOM 包含的节点数量超出了应有的数量。 删除它们。
           const cur = next
-          next = next.nextSibling
+          next = next.nextSibling // nextSibling 下一个相邻节点
           remove(cur)
         }
       } else if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
@@ -472,7 +485,9 @@ export function createHydrationFunctions(
           }
         } else if (props.onClick) {
           // Fast path for click listeners (which is most often) to avoid
+          // 点击侦听器（这是最常见的）要避免的快速路径
           // iterating through props.
+          // 迭代 props。
           patchProp(
             el,
             'onClick',
@@ -547,10 +562,12 @@ export function createHydrationFunctions(
             `Hydration children mismatch on`,
             container,
             `\nServer rendered element contains fewer child nodes than client vdom.`,
+            // 服务器渲染的元素包含比客户端 vdom 更少的子节点
           )
           hasWarned = true
         }
         // the SSRed DOM didn't contain enough nodes. Mount the missing ones.
+        // SSRed DOM 没有包含足够的节点。 挂载丢失的节点。
         patch(
           null,
           vnode,
@@ -657,6 +674,7 @@ export function createHydrationFunctions(
   }
 
   // looks ahead for a start and closing comment node
+  // 向前查找开始和结束注释节点
   const locateClosingAnchor = (
     node: Node | null,
     open = '[',
@@ -766,6 +784,7 @@ function propHasMismatch(
         actual = el.getAttribute(key)
       } else if (key === 'value' && el.tagName === 'TEXTAREA') {
         // #10000 textarea.value can't be retrieved by `hasAttribute`
+        // #10000 textarea.value 无法通过 `hasAttribute` 检索到
         actual = (el as HTMLTextAreaElement).value
       } else {
         actual = false
